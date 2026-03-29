@@ -272,41 +272,145 @@ function initHeroParallax() {
 
   const deep = root.querySelector('[data-parallax="deep"]')
   const mids = root.querySelectorAll('[data-parallax="mid"]')
+  const grid = root.querySelector('[data-parallax="grid"]')
+  const glowL = root.querySelector('[data-parallax="glow-l"]')
+  const glowR = root.querySelector('[data-parallax="glow-r"]')
   const content = root.querySelector('[data-parallax="content"]')
   const aside = root.querySelector('[data-parallax="aside"]')
 
-  if (!deep && mids.length === 0 && !content && !aside) return
+  if (!deep && mids.length === 0 && !grid && !glowL && !glowR && !content && !aside) return
 
-  let scheduled = false
-  const apply = () => {
-    scheduled = false
+  const usePointer =
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(pointer: fine)').matches &&
+    window.matchMedia('(hover: hover)').matches
+
+  let scrollDeep = 0
+  let scrollMid = 0
+  let scrollContent = 0
+  let scrollAside = 0
+
+  let mx = 0
+  let my = 0
+  let targetMx = 0
+  let targetMy = 0
+  const lerpPointer = usePointer ? 0.12 : 0.06
+  let driftStart = typeof performance !== 'undefined' ? performance.now() : 0
+  let heroIntersecting = true
+
+  const syncScroll = () => {
     const y = window.scrollY
     const start = root.offsetTop
     const delta = Math.max(0, y - start)
+    scrollDeep = delta * 0.13
+    scrollMid = delta * 0.065
+    scrollContent = -delta * 0.032
+    scrollAside = -delta * 0.058
+  }
+
+  const applyTransforms = () => {
+    const px = mx
+    const py = my
 
     if (deep) {
-      deep.style.transform = `translate3d(0, ${(delta * 0.13).toFixed(2)}px, 0)`
+      deep.style.transform = `translate3d(${(px * 22).toFixed(2)}px, ${(scrollDeep + py * 14).toFixed(2)}px, 0)`
     }
-    mids.forEach((el) => {
-      el.style.transform = `translate3d(0, ${(delta * 0.065).toFixed(2)}px, 0)`
+    mids.forEach((el, i) => {
+      const sign = i % 2 === 0 ? 1 : -1
+      const tx = px * 32 * sign
+      const ty = scrollMid + py * 20 * sign
+      el.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0)`
     })
+    if (grid) {
+      grid.style.transform = `translate3d(${(px * 10).toFixed(2)}px, ${(py * 8).toFixed(2)}px, 0)`
+    }
+    if (glowL) {
+      glowL.style.transform = `translate3d(${(px * 36).toFixed(2)}px, ${(py * 24 + scrollMid * 0.35).toFixed(2)}px, 0)`
+    }
+    if (glowR) {
+      glowR.style.transform = `translate3d(${(px * -28).toFixed(2)}px, ${(py * -18 + scrollMid * 0.25).toFixed(2)}px, 0)`
+    }
     if (content) {
-      content.style.transform = `translate3d(0, ${(-delta * 0.032).toFixed(2)}px, 0)`
+      const cx = px * 4
+      const cy = scrollContent + py * -6
+      content.style.transform = `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`
     }
     if (aside) {
-      aside.style.transform = `translate3d(0, ${(-delta * 0.058).toFixed(2)}px, 0)`
+      const ax = px * -5
+      const ay = scrollAside + py * -8
+      aside.style.transform = `translate3d(${ax.toFixed(2)}px, ${ay.toFixed(2)}px, 0)`
     }
   }
 
+  let scrollScheduled = false
   const onScrollOrResize = () => {
-    if (scheduled) return
-    scheduled = true
-    requestAnimationFrame(apply)
+    if (scrollScheduled) return
+    scrollScheduled = true
+    requestAnimationFrame(() => {
+      scrollScheduled = false
+      syncScroll()
+      applyTransforms()
+    })
   }
+
+  const onPointerMove = (e) => {
+    if (!usePointer) return
+    const r = root.getBoundingClientRect()
+    if (r.width < 1 || r.height < 1) return
+    const nx = (e.clientX - r.left) / r.width - 0.5
+    const ny = (e.clientY - r.top) / r.height - 0.5
+    targetMx = Math.max(-1, Math.min(1, nx * 2))
+    targetMy = Math.max(-1, Math.min(1, ny * 2))
+  }
+
+  const onPointerLeave = () => {
+    if (!usePointer) return
+    targetMx = 0
+    targetMy = 0
+  }
+
+  if (usePointer) {
+    root.addEventListener('mousemove', onPointerMove, { passive: true })
+    root.addEventListener('mouseleave', onPointerLeave)
+  }
+
+  if (typeof IntersectionObserver !== 'undefined') {
+    const io = new IntersectionObserver(
+      (entries) => {
+        const e = entries[0]
+        heroIntersecting = e ? e.isIntersecting : true
+      },
+      { threshold: 0, rootMargin: '80px 0px' }
+    )
+    io.observe(root)
+  }
+
+  const tickMotion = () => {
+    if (!usePointer) {
+      if (heroIntersecting) {
+        const t = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - driftStart
+        targetMx = Math.sin(t * 0.00028) * 0.42
+        targetMy = Math.cos(t * 0.00024) * 0.36
+      } else {
+        targetMx *= 0.92
+        targetMy *= 0.92
+      }
+    }
+
+    mx += (targetMx - mx) * lerpPointer
+    my += (targetMy - my) * lerpPointer
+
+    syncScroll()
+    applyTransforms()
+    requestAnimationFrame(tickMotion)
+  }
+
+  syncScroll()
+  applyTransforms()
+  requestAnimationFrame(tickMotion)
 
   window.addEventListener('scroll', onScrollOrResize, { passive: true })
   window.addEventListener('resize', onScrollOrResize, { passive: true })
-  apply()
 }
 
 initHeroParallax()
