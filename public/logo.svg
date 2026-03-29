@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-labelledby="logoTitle">
+  <title id="logoTitle">Th?y S?n</title>
+  <defs>
+    <linearGradient id="logoBg" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <linearGradient id="logoSheen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="80" height="80" rx="18" fill="url(#logoBg)"/>
+  <rect width="80" height="80" rx="18" fill="url(#logoSheen)"/>
+  <!-- Thay file này b?ng logo vector chính th?c (gi? kích th??c viewBox ho?c ch?nh trong HTML) -->
+  <text
+    x="40"
+    y="52"
+    text-anchor="middle"
+    font-family="Segoe UI, system-ui, -apple-system, sans-serif"
+    font-size="28"
+    font-weight="800"
+    fill="#ffffff"
+    letter-spacing="-0.04em"
+  >TS</text>
+</svg>

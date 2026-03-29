@@ -1,0 +1,205 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply font-sans text-slate-800 antialiased;
+  }
+}
+
+@layer components {
+  .section-title-mark {
+    @apply relative inline-block pl-3.5;
+  }
+  .section-title-mark::before {
+    content: "";
+    @apply absolute left-0 top-1/2 h-[70%] w-1 -translate-y-1/2 rounded-full bg-gradient-to-b from-brand-500 to-brand-700;
+  }
+
+  /* Visible by default if JS/module fails; hide only when html.js */
+  .reveal {
+    transition:
+      opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: transform, opacity;
+  }
+  html.js .reveal:not(.reveal-visible) {
+    opacity: 0;
+    transform: translate3d(0, 1.75rem, 0) scale(0.985);
+  }
+  html.js .reveal.reveal-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .hero-grid {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 85% 75% at 50% 40%, black 20%, transparent 75%);
+  }
+
+  .hero-vignette {
+    background: radial-gradient(
+      ellipse 90% 80% at 50% 42%,
+      transparent 0%,
+      rgb(12 18 34 / 0.35) 55%,
+      rgb(8 12 24 / 0.92) 100%
+    );
+  }
+
+  .hero-edge-glow {
+    box-shadow: inset 0 0 120px 40px rgb(15 23 42 / 0.65);
+  }
+
+  .hero-tech-panel {
+    position: relative;
+    background: linear-gradient(
+      165deg,
+      rgb(15 23 42 / 0.65) 0%,
+      rgb(12 18 34 / 0.45) 50%,
+      rgb(15 23 42 / 0.55) 100%
+    );
+    border: 1px solid rgb(34 211 238 / 0.22);
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.04) inset,
+      0 0 48px rgb(56 189 248 / 0.06),
+      0 24px 48px -24px rgb(0 0 0 / 0.5);
+  }
+
+  .hero-tech-panel::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(56 189 248 / 0.5),
+      rgb(52 211 153 / 0.45),
+      transparent
+    );
+    opacity: 0.85;
+    pointer-events: none;
+    border-radius: 0.75rem 0.75rem 0 0;
+  }
+
+  .service-card-top {
+    @apply pointer-events-none absolute inset-x-0 top-0 h-1 origin-left scale-x-0 rounded-t-2xl bg-gradient-to-r from-brand-500 via-brand-600 to-sky-400 transition-transform duration-500 ease-out;
+  }
+  .group:hover .service-card-top {
+    @apply scale-x-100;
+  }
+  .sticker-list {
+    @apply list-none p-0 m-0;
+  }
+  .sticker-list li {
+    @apply relative pl-8;
+  }
+  .sticker-list li::before {
+    content: "+";
+    @apply absolute left-0 top-0.5 flex h-5 w-5 items-center justify-center rounded text-sm font-bold text-white shadow-sm;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  }
+
+  .site-nav-link.site-nav-link-active {
+    @apply bg-brand-50 font-semibold text-brand-700 shadow-sm ring-1 ring-brand-500/15;
+  }
+  .site-nav-link.site-nav-link-active .site-nav-icon {
+    @apply text-brand-600;
+  }
+
+  .site-mobile-menu-root {
+    pointer-events: none;
+  }
+  html.site-mobile-menu-open .site-mobile-menu-root {
+    pointer-events: auto;
+  }
+  html.site-mobile-menu-open .site-mobile-menu-root .mobile-menu-backdrop {
+    @apply opacity-100;
+  }
+  html.site-mobile-menu-open .site-mobile-menu-root .mobile-menu-panel {
+    @apply translate-x-0;
+  }
+  html.site-mobile-menu-open .mobile-menu-toggle .mobile-menu-icon-open {
+    @apply hidden;
+  }
+  html.site-mobile-menu-open .mobile-menu-toggle .mobile-menu-icon-close {
+    @apply block;
+  }
+
+  .hero-service-slider-viewport {
+    @apply w-full;
+  }
+  .hero-service-slider-track {
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-service-slider-viewport > .hero-service-slider-track {
+    height: 100%;
+  }
+  .hero-service-slider-track > .hero-service-slide {
+    align-self: stretch;
+  }
+  .hero-service-slide > .hero-service-slide-frame {
+    max-height: min(78vh, 48rem);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-ping {
+    animation: none !important;
+  }
+  html.js .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    will-change: auto;
+  }
+  .animate-fade-up,
+  .animate-fade-in,
+  .animate-blur-fade-up,
+  .animate-header-in,
+  .animate-hero-line,
+  .animate-hero-shimmer,
+  .animate-aurora-slow,
+  .animate-aurora-slow-alt,
+  .animate-hero-ken,
+  .animate-hero-brand,
+  .animate-svc-line,
+  .animate-tech-panel,
+  .animate-cta-ring,
+  .animate-line-glow {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .site-mobile-menu-root .mobile-menu-backdrop,
+  .site-mobile-menu-root .mobile-menu-panel {
+    transition: none !important;
+  }
+  .hero-service-slider-track {
+    transition: none !important;
+  }
+}
